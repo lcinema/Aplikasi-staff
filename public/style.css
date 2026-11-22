@@ -1,0 +1,53 @@
+:root {
+  --bg: #f4f5f7; --card: #fff; --text: #1d2330; --muted: #6a7385; --line: #e2e5eb;
+  --primary: #2457d6; --primary-text: #fff; --danger: #c62d2d; --ok: #1b8a4b; --warn: #b36b00;
+  --pill-bg: #eef1f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #14171d; --card: #1d222b; --text: #e8ebf1; --muted: #99a2b3; --line: #2d3441; --primary: #6c97ff; --primary-text: #0b1020; --danger: #ff7b7b; --ok: #4cc785; --warn: #f0b04a; --pill-bg: #272d39; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+h1, h2, h3 { margin: 0 0 .6rem; line-height: 1.2; }
+h1 { font-size: 1.4rem; } h2 { font-size: 1.15rem; } h3 { font-size: 1rem; }
+button, input, select, textarea { font: inherit; color: inherit; }
+.top { background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5; }
+.top-in { max-width: 1100px; margin: 0 auto; padding: .6rem 16px; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+.brand { font-weight: 700; margin-right: auto; }
+.nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+.nav button { background: none; border: 0; padding: .4rem .7rem; border-radius: 8px; cursor: pointer; color: var(--muted); }
+.nav button.active { background: var(--pill-bg); color: var(--text); font-weight: 600; }
+.who { color: var(--muted); font-size: .85rem; }
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.grid { margin-bottom: 16px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.stat .n { font-size: 1.7rem; font-weight: 700; }
+.stat .l { color: var(--muted); font-size: .85rem; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+.row > * { flex: 0 1 auto; }
+label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 2px; }
+input, select, textarea { width: 100%; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+textarea { min-height: 80px; resize: vertical; }
+.field { margin-bottom: 10px; min-width: 130px; }
+.check { display: flex; align-items: center; gap: .5rem; } .check input { width: auto; } .check label { margin: 0; color: var(--text); font-size: .95rem; }
+.btn { background: var(--primary); color: var(--primary-text); border: 0; padding: .5rem .9rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn.ghost { background: var(--pill-bg); color: var(--text); }
+.btn.ok { background: var(--ok); color: #fff; } .btn.danger { background: var(--danger); color: #fff; }
+.btn.sm { padding: .25rem .6rem; font-size: .85rem; }
+.btn:disabled { opacity: .5; cursor: default; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: .5rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.tablewrap { overflow-x: auto; }
+.pill { display: inline-block; padding: .1rem .55rem; border-radius: 99px; font-size: .78rem; background: var(--pill-bg); white-space: nowrap; }
+.pill.pending { color: var(--warn); } .pill.approved, .pill.recorded { color: var(--ok); } .pill.rejected, .pill.cancelled { color: var(--danger); }
+.pill.t-pelanggaran { color: var(--danger); }
+.muted { color: var(--muted); } .small { font-size: .85rem; }
+.err { color: var(--danger); min-height: 1.3em; margin: .3rem 0; }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.login { max-width: 360px; margin: 12vh auto 0; padding: 0 16px; }
+.modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 12px; overflow-y: auto; z-index: 10; }
+.modal { background: var(--card); border-radius: 12px; padding: 18px; width: 100%; max-width: 520px; border: 1px solid var(--line); }
+.toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: .5rem 1rem; border-radius: 8px; z-index: 20; }
+@media (max-width: 640px) { .hide-sm { display: none; } }
