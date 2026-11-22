@@ -60,3 +60,33 @@ label { display: block; font-size: .8rem; color: var(--muted); margin: 0 0 3px 2
 .mini .n { font-weight: 700; font-size: 1.2rem; } .mini .l { font-size: .72rem; color: var(--muted); }
 .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 @media (min-width: 700px) { .backdrop { align-items: center; } .sheet { border-radius: 18px; } }
+
+/* ===== Responsif: layar sempit, landscape, desktop ===== */
+.head h1 { white-space: nowrap; }
+.monthnav b { min-width: 0; white-space: nowrap; padding: 0 2px; }
+.sheet { overscroll-behavior: contain; }
+@media (max-width: 400px) {
+  .page { padding-left: 12px; padding-right: 12px; }
+  .head h1 { font-size: 1.15rem; }
+  .monthnav b { font-size: .95rem; }
+  .iconbtn { width: 36px; height: 36px; }
+  .tabbar button { font-size: .62rem; }
+  .stat .n { font-size: 1.5rem; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .sheet { max-height: 100vh; border-radius: 0; }
+  .backdrop { align-items: stretch; }
+}
+@media (min-width: 700px) {
+  .tabbar { justify-content: center; }
+  .tabbar button { max-width: 128px; }
+  .page { padding-top: 24px; }
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+.head { flex-wrap: wrap; }
+@media (max-width: 360px) {
+  .head h1 { font-size: 1.05rem; }
+  .monthnav b { font-size: .88rem; }
+  .iconbtn { width: 34px; height: 34px; }
+}
+.btn + .card { margin-top: 10px; }
