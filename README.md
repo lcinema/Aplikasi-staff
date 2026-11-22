@@ -1,6 +1,6 @@
 # Aplikasi Staff
 
-Aplikasi web untuk mencatat **pelanggaran**, **izin sakit**, **izin keluar jam kerja**, **cuti**, dan **catatan lain** terkait staff.
+Aplikasi web (mobile-first, bisa dipasang di layar utama iPhone sebagai PWA) untuk mencatat **pelanggaran**, **izin sakit**, **izin keluar jam kerja**, **cuti**, dan **catatan lain** terkait staff.
 Tanpa dependensi npm — hanya Node.js ≥ 22.13 (SQLite bawaan `node:sqlite`).
 
 ## Menjalankan
@@ -39,3 +39,7 @@ Password di-hash scrypt, sesi cookie HttpOnly + SameSite=Strict, pembatasan perc
 ```bash
 npm test
 ```
+
+## Dipakai di iPhone
+
+Server harus bisa dijangkau dari HP (jaringan yang sama, VPS, atau tunnel HTTPS). Buka alamatnya di **Safari** → tombol Bagikan → **Tambah ke Layar Utama**. Aplikasi akan terbuka layar penuh seperti app biasa.

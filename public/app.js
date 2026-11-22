@@ -58,17 +58,14 @@ function renderLogin() {
 
 // ---------- layout ----------
 function renderShell(content) {
-  const tabs = [['dasbor', 'Dasbor'], ['catatan', 'Catatan']];
-  if (canManage()) tabs.push(['persetujuan', 'Persetujuan']);
-  if (state.user.role === 'admin') tabs.push(['staff', 'Staff']);
-  tabs.push(['akun', 'Akun']);
+  const tabs = [['dasbor', '🏠', 'Dasbor'], ['catatan', '📋', 'Catatan']];
+  if (canManage()) tabs.push(['persetujuan', '✅', 'Setuju']);
+  if (state.user.role === 'admin') tabs.push(['staff', '👥', 'Staff']);
+  tabs.push(['akun', '👤', 'Akun']);
   $app.replaceChildren(
-    h('div', { class: 'top' }, h('div', { class: 'top-in' },
-      h('span', { class: 'brand' }, 'Aplikasi Staff'),
-      h('nav', { class: 'nav' }, tabs.map(([k, l]) => h('button', { class: state.view === k ? 'active' : '', onclick: () => { state.view = k; render(); } }, l))),
-      h('span', { class: 'who' }, `${state.user.name} · ${ROLE_LABEL[state.user.role]}`),
-      h('button', { class: 'btn ghost sm', onclick: async () => { await api('POST', '/api/logout', {}).catch(() => {}); state.user = null; render(); } }, 'Keluar'))),
-    h('main', {}, content));
+    h('header', { class: 'top' }, h('div', { class: 'top-in' }, h('span', { class: 'brand' }, 'Aplikasi Staff'), h('span', { class: 'who' }, state.user.name))),
+    h('main', {}, content),
+    h('nav', { class: 'tabbar' }, tabs.map(([k, ic, l]) => h('button', { class: state.view === k ? 'active' : '', onclick: () => { state.view = k; window.scrollTo(0, 0); render(); } }, h('span', { class: 'ic' }, ic), h('span', {}, l)))));
 }
 
 // ---------- dasbor ----------
@@ -91,15 +88,14 @@ async function viewDasbor() {
   }
   if (s.outNow.length) {
     box.append(h('div', { class: 'card' }, h('h2', {}, 'Tidak masuk / izin hari ini'),
-      h('div', { class: 'tablewrap' }, h('table', {}, h('tbody', {}, s.outNow.map((r) => h('tr', {},
-        h('td', {}, r.name), h('td', {}, TYPE_LABEL[r.type] + (r.type === 'cuti' ? ` (${LEAVE_LABEL[r.category] || r.category})` : '')),
-        h('td', { class: 'muted' }, r.type === 'izin_keluar' ? `${r.time_out}${r.time_in ? '–' + r.time_in : ''}` : `${fmtDate(r.start_date)}${r.end_date !== r.start_date ? ' – ' + fmtDate(r.end_date) : ''}`))))))));
+      s.outNow.map((r) => h('div', { class: 'line' }, h('div', {}, h('b', {}, r.name), h('div', { class: 'muted small' }, TYPE_LABEL[r.type] + (r.type === 'cuti' ? ` (${LEAVE_LABEL[r.category] || r.category})` : ''))),
+        h('div', { class: 'muted small right' }, r.type === 'izin_keluar' ? `${r.time_out}${r.time_in ? '–' + r.time_in : ''}` : `s/d ${fmtDate(r.end_date)}`)))));
   }
-  box.append(h('div', { class: 'card' }, h('h2', {}, canManage() ? 'Rekap per staff' : 'Rekap saya'),
-    h('div', { class: 'tablewrap' }, h('table', {},
-      h('thead', {}, h('tr', {}, ['Nama', 'Pelanggaran', 'Poin', 'Hari sakit', 'Izin keluar', 'Hari cuti', 'Lainnya'].map((t) => h('th', {}, t)))),
-      h('tbody', {}, s.perStaff.map((r) => h('tr', {}, h('td', {}, r.name, h('div', { class: 'muted small' }, r.department)), h('td', {}, r.violations), h('td', {}, r.points), h('td', {}, r.sick_days), h('td', {}, r.out_count), h('td', {}, r.leave_days), h('td', {}, r.other_count))))))));
+  box.append(h('h2', { class: 'sect' }, canManage() ? 'Rekap per staff' : 'Rekap saya'),
+    s.perStaff.map((r) => h('div', { class: 'card item' }, h('div', { class: 'item-head' }, h('b', {}, r.name), h('span', { class: 'muted small' }, r.department)),
+      h('div', { class: 'mini' }, mini(r.violations, 'Pelanggaran'), mini(r.points, 'Poin'), mini(r.sick_days, 'Hr sakit'), mini(r.out_count, 'Izin keluar'), mini(r.leave_days, 'Hr cuti'), mini(r.other_count, 'Lainnya')))));
 }
+const mini = (n, l) => h('div', {}, h('div', { class: 'n' }, n), h('div', { class: 'l' }, l));
 const stat = (n, l) => h('div', { class: 'stat' }, h('div', { class: 'n' }, n), h('div', { class: 'l' }, l));
 
 // ---------- daftar catatan ----------
@@ -114,17 +110,14 @@ function detailText(r) {
 }
 function recordTable(rows, { withActions }) {
   if (!rows.length) return h('p', { class: 'muted' }, 'Belum ada data.');
-  return h('div', { class: 'tablewrap' }, h('table', {},
-    h('thead', {}, h('tr', {}, ['Tanggal', 'Staff', 'Jenis', 'Detail', 'Keterangan', 'Status', ''].map((t) => h('th', {}, t)))),
-    h('tbody', {}, rows.map((r) => h('tr', {},
-      h('td', {}, fmtDate(r.start_date), r.end_date !== r.start_date ? h('div', { class: 'muted small' }, 's/d ' + fmtDate(r.end_date)) : null),
-      h('td', {}, r.user_name),
-      h('td', {}, pill('t-' + r.type, TYPE_LABEL[r.type])),
-      h('td', {}, detailText(r)),
-      h('td', {}, r.description, r.decision_note ? h('div', { class: 'muted small' }, `Catatan keputusan: ${r.decision_note}`) : null,
-        h('div', { class: 'muted small' }, `Dicatat ${r.created_by_name}${r.decided_by_name ? ' · diputuskan ' + r.decided_by_name : ''}`)),
-      h('td', {}, pill(r.status, STATUS_LABEL[r.status])),
-      h('td', {}, withActions ? recordActions(r) : null))))));
+  return h('div', {}, rows.map((r) => h('div', { class: 'card item' },
+    h('div', { class: 'item-head' }, pill('t-' + r.type, TYPE_LABEL[r.type]), pill(r.status, STATUS_LABEL[r.status])),
+    h('div', { class: 'item-title' }, r.user_name),
+    h('div', { class: 'muted small' }, fmtDate(r.start_date) + (r.end_date !== r.start_date ? ' – ' + fmtDate(r.end_date) : '') + ' · ' + detailText(r)),
+    h('p', { class: 'desc' }, r.description),
+    r.decision_note ? h('div', { class: 'muted small' }, `Catatan keputusan: ${r.decision_note}`) : null,
+    h('div', { class: 'muted small' }, `Dicatat ${r.created_by_name}${r.decided_by_name ? ' · diputuskan ' + r.decided_by_name : ''}`),
+    withActions ? recordActions(r) : null)));
 }
 function recordActions(r) {
   const a = [];
@@ -156,23 +149,21 @@ async function viewCatatan() {
   const set = (k) => (e) => { f[k] = e.target.value; };
   const types = [['', 'Semua jenis'], ...Object.entries(TYPE_LABEL)];
   const statuses = [['', 'Semua status'], ...Object.entries(STATUS_LABEL)];
-  const filters = h('div', { class: 'card' }, h('div', { class: 'row' },
+  const filters = h('details', { class: 'card' }, h('summary', {}, 'Filter & unduh'), h('div', { class: 'row' },
     field('Jenis', sel(types, f.type, { onchange: set('type') })), field('Status', sel(statuses, f.status, { onchange: set('status') })),
     canManage() ? field('Staff', sel([['', 'Semua staff'], ...state.users.map((u) => [u.id, u.name])], f.user_id, { onchange: set('user_id') })) : null,
     field('Dari', h('input', { type: 'date', value: f.from, onchange: set('from') })), field('Sampai', h('input', { type: 'date', value: f.to, onchange: set('to') })),
-    field('Cari', h('input', { value: f.q, placeholder: 'nama / keterangan', onchange: set('q') })),
-    h('div', { class: 'field' }, h('button', { class: 'btn', onclick: () => render() }, 'Terapkan'))),
-    h('div', { class: 'row' },
-      h('button', { class: 'btn', onclick: () => openRecordForm() }, canManage() ? '+ Catat baru' : '+ Ajukan izin / cuti'),
-      h('a', { class: 'btn ghost', href: '/api/export.csv?' + qs, download: '' }, 'Unduh CSV')));
-  box.append(filters, h('div', { class: 'card' }, recordTable(rows, { withActions: true })));
+    field('Cari', h('input', { value: f.q, placeholder: 'nama / keterangan', onchange: set('q') }))),
+    h('div', { class: 'row' }, h('button', { class: 'btn', onclick: () => render() }, 'Terapkan'), h('a', { class: 'btn ghost', href: '/api/export.csv?' + qs, download: '' }, 'Unduh CSV')));
+  if (Object.values(f).some(Boolean)) filters.open = true;
+  box.append(h('button', { class: 'btn block', onclick: () => openRecordForm() }, canManage() ? '+ Catat baru' : '+ Ajukan izin / cuti'), filters, recordTable(rows, { withActions: true }));
 }
 
 async function viewPersetujuan() {
   const box = h('div', {});
   renderShell(box);
   const rows = (await api('GET', '/api/records?status=pending')).filter((r) => r.user_id !== state.user.id);
-  box.append(h('div', { class: 'card' }, h('h2', {}, `Menunggu keputusan (${rows.length})`), recordTable(rows, { withActions: true })));
+  box.append(h('h2', { class: 'sect' }, `Menunggu keputusan (${rows.length})`), recordTable(rows, { withActions: true }));
 }
 
 // ---------- form catatan ----------
@@ -187,11 +178,13 @@ function openRecordForm(existing) {
   const end = h('input', { type: 'date', value: existing?.end_date || todayStr() });
   const desc = h('textarea', { required: true, maxlength: 2000 }, existing?.description || '');
   const dyn = h('div', {});
+  const startLabel = h('label', {}, 'Tanggal');
   const auto = h('input', { type: 'checkbox' });
   let el = {};
 
   function buildDynamic() {
     const t = type.value; el = {}; dyn.replaceChildren();
+    startLabel.textContent = t === 'izin_keluar' || t === 'pelanggaran' ? 'Tanggal' : 'Tanggal mulai';
     const endField = field(t === 'sakit' || t === 'cuti' || t === 'lainnya' ? 'Tanggal selesai' : '', end);
     if (t === 'pelanggaran') {
       el.category = sel([['ringan', 'Ringan (1 poin)'], ['sedang', 'Sedang (3 poin)'], ['berat', 'Berat (5 poin)']], existing?.category || 'ringan');
@@ -244,7 +237,7 @@ function openRecordForm(existing) {
   } },
     h('h2', {}, isEdit ? 'Ubah catatan' : manage ? 'Catat baru' : 'Ajukan izin / cuti'),
     field('Jenis', type), manage ? field('Staff', staffSel) : null,
-    field(type.value === 'izin_keluar' || type.value === 'pelanggaran' ? 'Tanggal' : 'Tanggal mulai', start), dyn,
+    h('div', { class: 'field' }, startLabel, start), dyn,
     field('Keterangan / alasan', desc), err,
     h('div', { class: 'row' }, h('button', { class: 'btn', type: 'submit' }, 'Simpan'), h('button', { class: 'btn ghost', type: 'button', onclick: close }, 'Batal')));
   const back = h('div', { class: 'modal-back', onmousedown: (e) => { if (e.target === back) close(); } }, h('div', { class: 'modal' }, form));
@@ -256,11 +249,11 @@ async function viewStaff() {
   const box = h('div', {});
   renderShell(box);
   const users = await api('GET', '/api/users?all=1');
-  box.append(h('div', { class: 'card' }, h('div', { class: 'row' }, h('h2', {}, 'Data staff'), h('button', { class: 'btn sm', onclick: () => openUserForm() }, '+ Tambah staff')),
-    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Nama', 'Username', 'NIK', 'Jabatan / Dept', 'Role', 'Kuota cuti', 'Status', ''].map((t) => h('th', {}, t)))),
-      h('tbody', {}, users.map((u) => h('tr', {}, h('td', {}, u.name), h('td', {}, u.username), h('td', {}, u.nik), h('td', {}, [u.position, u.department].filter(Boolean).join(' / ')),
-        h('td', {}, ROLE_LABEL[u.role]), h('td', {}, u.annual_quota), h('td', {}, pill(u.active ? 'approved' : 'rejected', u.active ? 'Aktif' : 'Nonaktif')),
-        h('td', {}, h('button', { class: 'btn ghost sm', onclick: () => openUserForm(u) }, 'Ubah')))))))));
+  box.append(h('button', { class: 'btn block', onclick: () => openUserForm() }, '+ Tambah staff'),
+    users.map((u) => h('div', { class: 'card item' }, h('div', { class: 'item-head' }, h('b', {}, u.name), pill(u.active ? 'approved' : 'rejected', u.active ? 'Aktif' : 'Nonaktif')),
+      h('div', { class: 'muted small' }, `${u.username} · ${ROLE_LABEL[u.role]}${u.nik ? ' · NIK ' + u.nik : ''}`),
+      h('div', { class: 'muted small' }, [u.position, u.department].filter(Boolean).join(' / ') || '-', ` · kuota cuti ${u.annual_quota}`),
+      h('div', { class: 'actions' }, h('button', { class: 'btn ghost sm', onclick: () => openUserForm(u) }, 'Ubah')))));
 }
 function openUserForm(u) {
   const err = h('div', { class: 'err' });
